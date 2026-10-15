@@ -1,12 +1,9 @@
-// Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+// 1. Import fungsi Firebase yang dibutuhkan (versi 13.0.0)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+import { getDatabase, ref, push, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
+// 2. Konfigurasi Firebase Anda (Sudah benar)
+const firebaseConfig = {
     apiKey: "AIzaSyD-2rYw5LAr6SIJwHZZjdX1DygPukCkzVU",
     authDomain: "inventaris-63e9b.firebaseapp.com",
     projectId: "inventaris-63e9b",
@@ -15,12 +12,11 @@
     messagingSenderId: "1037827503984",
     appId: "1:1037827503984:web:3c9402f8a6aa84597981b5",
     measurementId: "G-W0C571FTMP"
-  };
+};
 
-// Inisialisasi Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-// Referensi database ke node "barang"
+// 3. Inisialisasi Firebase & Database
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 const dbRef = ref(db, 'barang');
 
 // DOM Elements
@@ -34,7 +30,7 @@ const btnSimpan = document.getElementById('btn-simpan');
 const btnBatal = document.getElementById('btn-batal');
 const itemList = document.getElementById('item-list');
 
-// 1. TAMBAH / UPDATE DATA
+// 4. TAMBAH / UPDATE DATA
 form.addEventListener('submit', (e) => {
     e.preventDefault();
     
@@ -44,25 +40,19 @@ form.addEventListener('submit', (e) => {
     const jumlah = Number(jumlahInput.value);
 
     if (id === "") {
-        // Tambah data baru ke Firebase
         const newPostRef = push(dbRef);
         set(newPostRef, { nama, kategori, jumlah })
-            .then(() => {
-                resetForm();
-            })
+            .then(() => resetForm())
             .catch((error) => alert("Gagal menyimpan: " + error.message));
     } else {
-        // Update data yang sudah ada
         const itemRef = ref(db, 'barang/' + id);
         update(itemRef, { nama, kategori, jumlah })
-            .then(() => {
-                resetForm();
-            })
+            .then(() => resetForm())
             .catch((error) => alert("Gagal mengupdate: " + error.message));
     }
 });
 
-// 2. BACA / MENAMPILKAN DATA (Realtime)
+// 5. BACA / MENAMPILKAN DATA (Realtime)
 onValue(dbRef, (snapshot) => {
     const data = snapshot.val();
     itemList.innerHTML = "";
@@ -89,7 +79,7 @@ onValue(dbRef, (snapshot) => {
     }
 });
 
-// 3. HAPUS DATA
+// 6. HAPUS DATA
 window.deleteItem = function(id) {
     if (confirm("Yakin ingin menghapus barang ini?")) {
         const itemRef = ref(db, 'barang/' + id);
@@ -97,7 +87,7 @@ window.deleteItem = function(id) {
     }
 };
 
-// 4. ISI FORM UNTUK EDIT
+// 7. ISI FORM UNTUK EDIT
 window.editItem = function(id, nama, kategori, jumlah) {
     itemIdInput.value = id;
     namaInput.value = nama;
@@ -109,7 +99,7 @@ window.editItem = function(id, nama, kategori, jumlah) {
     btnBatal.style.display = "inline-block";
 };
 
-// 5. BATAL EDIT
+// 8. BATAL EDIT
 btnBatal.addEventListener('click', () => {
     resetForm();
 });
